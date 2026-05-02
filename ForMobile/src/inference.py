@@ -1,7 +1,7 @@
 """ src/inference.py """
 import jieba
 import torch
-from config import STOP_SYNCS, DEVICE, EMOTION_LABELS, EMOTION_COLORS
+from config import STOP_SYNCS, DEVICE, EMOTION_LABELS, EMOTION_COLORS, UNK_MODE
 from src.dataset import SentimentDataSet
 from src.model import Nya_Nya_ChineseEmotionLSTM
 from src.utils import debug, save_records
@@ -20,24 +20,50 @@ def self_test(text, model, tokenizer):
     # 使用传入的Tokenizer进行编码
     sequence = tokenizer.encode(text_split).ids
     seq_len = len(sequence)
+    unk_mode = UNK_MODE # 获取UNK_MODE为变量，若出错可进行修改
 
-    if seq_len <= 4:
-        # 优先处理 如果序列长度为0，则禁用停用词
-        if seq_len == 0:
-            debug.function('词量为0，禁用停用词')
-            text_split = ' '.join([x for x in text])
+    if unk_mode != 'none':
+        if unk_mode not in ('full', 'chars'):
+            debug.error(f'UNK_MODE值不规范{UNK_MODE}，请前往config.py文件进行检查，当前修改为 chars')
+            unk_mode = 'chars'
 
-        # 整个序列都为1，则对每个字进行单独分词
-        elif all(idx == 1 for idx in sequence):
-            debug.function('未识别到词组, 执行单字重分词')
-            text_split = ' '.join([x for x in text if x not in STOP_SYNCS])
-        # 整个序列中1占多数，则进行全模式分词
-        elif any(idx == 1 for idx in sequence):
-            debug.function('词量过小, 执行精确分词')
-            text_split = ' '.join([x for x in jieba.cut(str(text), cut_all=True) if x not in STOP_SYNCS])
+        relevant_ids = sequence[-(len(words)):] if seq_len > len(words) else sequence
+        new_words = []
+        for word, token_id in zip(words, relevant_ids):
+            if token_id == 1:
+                if unk_mode == 'full':
+                    chars = [c for c in jieba.cut(word, cut_all=True) if c not in STOP_SYNCS and c.strip()]
+                elif unk_mode == 'chars':
+                    chars = [c for c in word if c not in STOP_SYNCS and c.strip()]
+                new_words.extend(chars)
+            else:
+                new_words.append(word)
+        new_words = ' '.join(new_words)
 
-        sequence = tokenizer.encode(text_split).ids
+        # 重分词后重新编码
+        sequence = tokenizer.encode(new_words).ids
         seq_len = len(sequence)
+
+    # 这里是已经弃用的保守数据增强
+    # if seq_len <= 4:
+    #     # 优先处理 如果序列长度为0，则禁用停用词
+    #     if seq_len == 0:
+    #         debug.function('词量为0，禁用停用词')
+    #         new_words = ' '.join([x for x in text])
+    #
+    #     # 整个序列都为1，则对每个字进行单独分词
+    #     elif all(idx == 1 for idx in sequence):
+    #         debug.function('未识别到词组, 执行单字重分词')
+    #         new_words = ' '.join([x for x in text if x not in STOP_SYNCS])
+    #
+    #     # 整个序列中1占多数，则进行全模式分词
+    #     elif any(idx == 1 for idx in sequence):
+    #         debug.function('词量过小, 执行重分词')
+    #         new_words = ' '.join([x for x in jieba.cut(str(text), cut_all=True) if x not in STOP_SYNCS])
+    #
+    #     # 重分词后重新编码
+    #     sequence = tokenizer.encode(new_words).ids
+    #     seq_len = len(sequence)
 
     # 转换为 Tensor 并移动到指定设备
     inputs = torch.tensor([sequence], dtype=torch.long).to(DEVICE)
@@ -65,7 +91,7 @@ def self_test(text, model, tokenizer):
         # 打印信息
         print('-' * 40)
         print(f'输入: \n{gray(f"{text}")}')
-        print(f'分词: \n{gray(f"{text_split}")}')
+        print(f'分词: \n{gray(f"{new_words}")}')
         print(f'数字序列: \n{sequence}')
         print(f'序列长度: {seq_len}')
         print(f'情感分析: {EMOTION_COLORS[sentiment]}{sentiment:2}   {confidence * 100:.2f}%{colors["reset"]}')
@@ -85,7 +111,7 @@ def self_test(text, model, tokenizer):
         # 加入记录中便于输出信息与记录
         records = [{
             'input': text,
-            'text_split': text_split,
+            'text_split': new_words,
             'sequence': sequence,
             'sequence_len': seq_len,
             'result': dis,
