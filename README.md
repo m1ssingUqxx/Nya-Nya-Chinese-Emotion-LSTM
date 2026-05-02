@@ -55,6 +55,9 @@ pip install pandas
 ```
 
 ## 开始
+你可以使用我训练好的模型http://cloud.189.cn/t/RrUZbuyIzUvy（访问码：qj6z）<br>
+将你要的模型放至ForPC或ForMobile的models文件夹下<br>
+
 **PC端**
 ```bash
 cd ForPC
