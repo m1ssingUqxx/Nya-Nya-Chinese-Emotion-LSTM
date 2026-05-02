@@ -16,8 +16,10 @@
 
 ## 版本说明
 本项目提供两个运行版本：
-- **[PC 版](ForPC)**：标准Python环境，命令行交互
+- **[PC 版](ForPC)**：标准Python环境，命令行交互。
 - **[移动版](ForMobile)**：替换了 tokenizers 为纯 Python 实现，解决 Termux/Pydroid3 等移动端环境下无法编译 Rust 扩展的问题。核心功能与 PC 版一致，同时兼容PC。
+
+项目内置完善的交互系统，支持连续多轮分析、实时模式切换。
 
 ## 项目结构
 ```
@@ -56,7 +58,7 @@ pip install pandas
 
 ## 开始
 你可以使用我训练好的模型http://cloud.189.cn/t/RrUZbuyIzUvy（访问码：qj6z）<br>
-将你要的模型放至ForPC或ForMobile的models文件夹下<br>
+将模型文件放至 `ForPC/models/` 或 `ForMobile/models/` 目录下。
 
 **PC端**
 ```bash
