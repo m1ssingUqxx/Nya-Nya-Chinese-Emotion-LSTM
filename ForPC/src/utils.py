@@ -128,6 +128,8 @@ def enter_input(prompt='', stop_signal='/end', show_hint=True, input_mode='multi
     print('只输入结束符可以返回上层')
 
     if show_hint:
+        if input_mode == None:
+            print(f'未选择输入模式')
         if input_mode == 'single':
             print(f'此输入模式结束符为 {colors["red"]}换行{colors["reset"]}')
         else:
