@@ -17,7 +17,7 @@
 ## 版本说明
 本项目提供两个运行版本：
 - **[PC 版](ForPC)**：标准Python环境，命令行交互
-- **[移动版](ForMobile)**：替换了 tokenizers 为纯 Python 实现，解决 Termux/Pydroid3 等移动端环境下无法编译 Rust 扩展的问题。核心功能与 PC 版一致。
+- **[移动版](ForMobile)**：替换了 tokenizers 为纯 Python 实现，解决 Termux/Pydroid3 等移动端环境下无法编译 Rust 扩展的问题。核心功能与 PC 版一致，同时兼容PC。
 
 ## 项目结构
 ```
