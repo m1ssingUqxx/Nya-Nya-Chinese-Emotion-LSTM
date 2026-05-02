@@ -54,13 +54,6 @@ pip install jieba
 pip install pandas
 ```
 
-
-## 快速选择
-| 你的环境              | 进入                        |
-|-------------------|-------------------------------|
-| Windows/Linux/Mac | [ForPC](forPC) |
-| Android/树莓派/终端设备  | [ForMobile](forMobile)|
-
 ## 开始
 **PC端**
 ```bash
