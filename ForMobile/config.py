@@ -64,3 +64,8 @@ BATCH_SIZES = [128]
 # 长输入语句的结束符
 STOP_SIGNAL = '/end'
 
+# 测试文本时遇见未知词的应对策略
+# none: 不做任何处理
+# full: 将[UNK]位置的词使用jieba全模式进行拆分（激进，可能引入大量噪声）
+# chars: 将[UNK]位置的词拆成单个汉字（保守）
+UNK_MODE = 'chars'
